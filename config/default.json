@@ -1,0 +1,8 @@
+{
+  "services": {
+    "home_assistant": {
+      "hass_url": "http://localhost:8123",
+      "hass_access_token": "ABCDEF123456"
+    }
+  }
+}
