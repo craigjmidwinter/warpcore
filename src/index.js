@@ -1,5 +1,5 @@
 import HomeAssistantService from '#services/HomeAssistant';
-import handleHomeAssistantEvent from '#root/Dispatcher';
+import { handleHomeAssistantEvent, dispatchTask } from '#root/Dispatcher';
 
 console.log('starting automation engine');
 
