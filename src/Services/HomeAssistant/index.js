@@ -1,4 +1,5 @@
 import config from 'config';
+import { callService as callHassService } from 'home-assistant-js-websocket';
 import Hass from './lib/HassConnector';
 
 const opts = {
@@ -49,6 +50,15 @@ class HomeAssistantService {
   setEventCallback(cb) {
     this.eventCallback = cb;
   }
+
+  callService = async ({ domain, service, serviceData }) => {
+    console.log('calling service', domain, service, serviceData);
+    try {
+      callHassService(this.hass.conn, domain, service, serviceData);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 }
 
 export default new HomeAssistantService({});

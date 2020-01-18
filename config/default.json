@@ -4,5 +4,11 @@
       "hass_url": "http://localhost:8123",
       "hass_access_token": "ABCDEF123456"
     }
+  },
+  "providers": {
+    "beanstalkd": {
+      "host": "beanstalkd",
+      "port": "11300"
+    }
   }
 }

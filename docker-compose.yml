@@ -1,3 +1,4 @@
+---
 version: "3"
 services:
     warpcore:
@@ -6,6 +7,22 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-            - "3000:3000"
+            - 3000:3000
         volumes:
             - .:/opt/app
+        environment:
+            - BEANSTALKD_HOST=beanstalkd
+            - BEANSTALKD_PORT=11300
+            - DEBUG=beanstalkd-worker*
+    beanstalkd:
+        image: placeloop/beanstalkd
+        container_name: beanstalkd
+        ports:
+            - 11300:11300
+        volumes:
+            - .beanstalkd/data:/binlog
+    beanstalkd-console:
+        image: schickling/beanstalkd-console
+        container_name: beanstalkd-console
+        ports:
+            - 2080:2080
