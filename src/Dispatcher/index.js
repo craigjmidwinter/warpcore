@@ -1,5 +1,6 @@
 import Beanstalkd from 'beanstalkd-worker';
 import config from 'config';
+import { QUEUES } from '#root/Dispatcher/const';
 import * as HassEvents from '#events/HassEvents';
 
 export function handleHomeAssistantEvent(hassData) {
@@ -11,7 +12,7 @@ export function handleHomeAssistantEvent(hassData) {
   Object.values(HassEvents).forEach(event => {
     if (event.meetsCondition(data)) {
       console.log('event meets condition', event, data);
-      event.dispatch(data);
+      event.action(data);
     }
   });
 }
@@ -22,7 +23,7 @@ export async function dispatchTask({
   delay = 0,
   priority = '0',
   ttr = 60,
-  tube = 'default',
+  tube = QUEUES.DEFAULT,
 }) {
   const payload = {
     taskName,

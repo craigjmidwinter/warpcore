@@ -13,6 +13,7 @@ services:
         environment:
             - BEANSTALKD_HOST=beanstalkd
             - BEANSTALKD_PORT=11300
+            - DEBUG=beanstalkd-worker*
     beanstalkd:
         image: placeloop/beanstalkd
         container_name: beanstalkd

@@ -4,7 +4,7 @@ export default class BaseEvent {
     return true;
   }
 
-  static dispatch() {
+  static action() {
     console.log('Dispatched BaseEvent');
   }
 }
