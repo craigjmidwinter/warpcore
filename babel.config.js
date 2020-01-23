@@ -10,6 +10,7 @@ module.exports = {
           '#events': './src/Events',
           '#services': './src/Services',
           '#hassEvents': './src/Events/HassEvents',
+          '#timeEvents': './src/Events/TimeEvents',
           '#tasks': './src/Tasks',
         },
       },

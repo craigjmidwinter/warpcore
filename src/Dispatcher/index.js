@@ -2,6 +2,7 @@ import Beanstalkd from 'beanstalkd-worker';
 import config from 'config';
 import { QUEUES } from '#root/Dispatcher/const';
 import * as HassEvents from '#events/HassEvents';
+import * as TimeEvents from '#events/TimeEvents';
 
 export function handleHomeAssistantEvent(hassData) {
   const data = { hassData };
@@ -13,6 +14,17 @@ export function handleHomeAssistantEvent(hassData) {
     if (event.meetsCondition(data)) {
       console.log('event meets condition', event, data);
       event.action(data);
+    }
+  });
+}
+export function handleTimeEvent() {
+  // We rip through all the events in the directory.
+  // This used to be a for...of loop, but AirBnb's eslint rules say not to use that
+  // ¯\_(ツ)_/¯
+  Object.values(TimeEvents).forEach(event => {
+    if (event.meetsCondition()) {
+      console.log('event meets condition', event);
+      event.action();
     }
   });
 }
