@@ -1,6 +1,9 @@
 import BaseTask from '#root/Tasks/BaseTask';
 import HomeAssistantService from '#services/HomeAssistant';
 import { PRE_EXECUTION_RESULTS } from '#tasks/const';
+import getLogger from '#services/LoggingService';
+
+const logger = getLogger();
 
 export default class ArmHome extends BaseTask {
   preExecution = async () => {
@@ -8,14 +11,14 @@ export default class ArmHome extends BaseTask {
   };
 
   execute = async () => {
-    console.log('arming home');
+    logger.info('Arming Home');
     try {
       await HomeAssistantService.callService({
         domain: 'alarm_control_panel',
         service: 'alarm_arm_home',
       });
     } catch (e) {
-      console.log(e);
+      logger.error(e);
     }
   };
 }

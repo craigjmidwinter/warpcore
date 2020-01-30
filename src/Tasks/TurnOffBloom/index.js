@@ -1,6 +1,9 @@
 import BaseTask from '#root/Tasks/BaseTask';
 import HomeAssistantService from '#services/HomeAssistant';
 import { PRE_EXECUTION_RESULTS } from '#tasks/const';
+import getLogger from '#services/LoggingService';
+
+const logger = getLogger();
 
 export default class TurnOffBloom extends BaseTask {
   async preExecution() {
@@ -8,7 +11,7 @@ export default class TurnOffBloom extends BaseTask {
   }
 
   async execute() {
-    console.log('execute turn off bloom');
+    logger.info('execute turn off bloom');
     try {
       await HomeAssistantService.callService({
         domain: 'homeassistant',
@@ -18,7 +21,7 @@ export default class TurnOffBloom extends BaseTask {
         },
       });
     } catch (e) {
-      console.log(e);
+      logger.error(e);
     }
   }
 }

@@ -1,6 +1,9 @@
 import config from 'config';
 import { callService as callHassService } from 'home-assistant-js-websocket';
 import Hass from './lib/HassConnector';
+import getLogger from '#services/LoggingService';
+
+const logger = getLogger();
 
 const opts = {
   hassUrl: config.get('services.home_assistant.hass_url'),
@@ -22,12 +25,12 @@ class HomeAssistantService {
 
   async connect() {
     try {
-      console.log('Connecting to Home Assistant');
+      logger.info('Connecting to Home Assistant');
       await this.hass.connect();
       this.connected = true;
-      console.log('Connected to Home Assistant');
+      logger.info('Connected to Home Assistant');
     } catch (e) {
-      console.log('There was an error connecting to Home Assistant', e);
+      logger.error('There was an error connecting to Home Assistant', e);
       this.connected = false;
     }
   }
@@ -36,7 +39,7 @@ class HomeAssistantService {
     try {
       await this.connect();
     } catch (e) {
-      console.log(e);
+      logger.error(e);
     }
     // eventually do stuff now with hass like hass.subscribeEntities(handler)
     // but for now like this
@@ -52,11 +55,11 @@ class HomeAssistantService {
   }
 
   callService = async ({ domain, service, serviceData }) => {
-    console.log('calling service', domain, service, serviceData);
+    logger.info('calling service', domain, service, serviceData);
     try {
       callHassService(this.hass.conn, domain, service, serviceData);
     } catch (e) {
-      console.log(e);
+      logger.error(e);
     }
   };
 }
