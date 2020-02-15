@@ -1,21 +1,25 @@
 import BeanstalkdWorker from 'beanstalkd-worker';
 import config from 'config';
 import { QUEUES } from '#root/Dispatcher/const';
-import { TASK_MAP, PRE_EXECUTION_RESULTS } from '#tasks/const';
+import { PRE_EXECUTION_RESULTS } from '#tasks/const';
+import getTask from '#tasks/taskMap';
+import getLogger from '#services/LoggingService';
+
+const logger = getLogger();
 
 const host = config.get('providers.beanstalkd.host');
 const port = config.get('providers.beanstalkd.port');
 const beanstalkd = new BeanstalkdWorker(host, port);
 
-const jobHandler = async function(payload) {
+const jobHandler = async payload => {
   const { taskName, taskData } = payload;
-  const Task = TASK_MAP[taskName];
+  const Task = getTask(taskName);
 
   try {
     const task = new Task({ data: taskData });
     const preExecResult = await task.preExecution();
-    console.log('processing');
-    console.log(payload);
+    logger.debug('processing task');
+    logger.debug(payload);
 
     switch (preExecResult) {
       case PRE_EXECUTION_RESULTS.EXECUTE:
@@ -23,20 +27,18 @@ const jobHandler = async function(payload) {
           task.execute();
           return Promise.resolve();
         } catch (e) {
-          console.log(e);
+          logger.info(e);
           return Promise.reject();
         }
       case PRE_EXECUTION_RESULTS.REQUEUE:
         return this.delay(task.requeueTime);
-        break;
       case PRE_EXECUTION_RESULTS.DISMISS:
         return Promise.resolve();
-        break;
       default:
         return Promise.reject();
     }
   } catch (e) {
-    console.log(e);
+    logger.error(e);
   }
   return true;
 };
@@ -51,9 +53,9 @@ export default async function consumeQueue() {
       },
     });
 
-    console.log('starting worker', QUEUES.DEFAULT);
+    logger.info('starting worker', QUEUES.DEFAULT);
     beanstalkd.start();
   } catch (e) {
-    console.log(e);
+    logger.error(e);
   }
 }

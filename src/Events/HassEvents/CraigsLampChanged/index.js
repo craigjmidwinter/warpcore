@@ -2,6 +2,9 @@ import BaseEvent from '#root/Events/BaseEvent';
 import { entityWentOn } from '#services/HomeAssistant/utils';
 import { dispatchTask } from '#root/Dispatcher';
 import { TASK_TURN_OFF_BLOOM } from '#tasks/const';
+import getLogger from '#services/LoggingService';
+
+const logger = getLogger();
 
 export default class CraigsLampChanged extends BaseEvent {
   static meetsCondition(data) {
@@ -10,7 +13,7 @@ export default class CraigsLampChanged extends BaseEvent {
   }
 
   static async action(data) {
-    console.log('dispatching task =turning off bloom');
+    logger.info('dispatching task =turning off bloom');
 
     dispatchTask({
       taskName: TASK_TURN_OFF_BLOOM,

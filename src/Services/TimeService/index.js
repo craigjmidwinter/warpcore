@@ -1,8 +1,11 @@
 import { handleTimeEvent } from '#root/Dispatcher';
+import getLogger from '#services/LoggingService';
+
+const logger = getLogger();
 
 export default function startTimer() {
   setInterval(() => {
-    console.log('tick');
+    logger.debug('tick');
     handleTimeEvent();
   }, 60000);
 }

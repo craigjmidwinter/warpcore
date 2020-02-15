@@ -3,16 +3,21 @@ import config from 'config';
 import { QUEUES } from '#root/Dispatcher/const';
 import * as HassEvents from '#events/HassEvents';
 import * as TimeEvents from '#events/TimeEvents';
+import getLogger from '#services/LoggingService';
+
+const logger = getLogger();
 
 export function handleHomeAssistantEvent(hassData) {
   const data = { hassData };
+  logger.info('hass event fired');
+  logger.debug(JSON.stringify(data, null, 2));
 
   // We rip through all the events in the directory.
   // This used to be a for...of loop, but AirBnb's eslint rules say not to use that
   // ¯\_(ツ)_/¯
   Object.values(HassEvents).forEach(event => {
     if (event.meetsCondition(data)) {
-      console.log('event meets condition', event, data);
+      logger.info('event meets condition', event, data);
       event.action(data);
     }
   });
@@ -23,7 +28,7 @@ export function handleTimeEvent() {
   // ¯\_(ツ)_/¯
   Object.values(TimeEvents).forEach(event => {
     if (event.meetsCondition()) {
-      console.log('event meets condition', event);
+      logger.info('event meets condition', event);
       event.action();
     }
   });
@@ -52,5 +57,5 @@ export async function dispatchTask({
     priority,
     timeout, // ms
   });
-  console.log('task scheduled', job.id);
+  logger.info('task scheduled', job.id);
 }
