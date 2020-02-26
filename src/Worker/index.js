@@ -1,20 +1,13 @@
 import BeanstalkdWorker from 'beanstalkd-worker';
-import config from 'config';
 import { QUEUES } from '#root/Dispatcher/const';
 import { PRE_EXECUTION_RESULTS } from '#tasks/const';
-import getTask from '#tasks/taskMap';
 import getLogger from '#services/LoggingService';
 
 const logger = getLogger();
 
-const host = config.get('providers.beanstalkd.host');
-const port = config.get('providers.beanstalkd.port');
-const beanstalkd = new BeanstalkdWorker(host, port);
-
-const jobHandler = async payload => {
-  const { taskName, taskData } = payload;
-  const Task = getTask(taskName);
-
+async function jobHandler(payload, Task) {
+  const { taskData } = payload;
+  logger.debug(this);
   try {
     const task = new Task({ data: taskData });
     const preExecResult = await task.preExecution();
@@ -41,21 +34,50 @@ const jobHandler = async payload => {
     logger.error(e);
   }
   return true;
-};
-
-export default async function consumeQueue() {
-  try {
-    beanstalkd.handle(QUEUES.DEFAULT, jobHandler, {
-      tries: 3,
-      backoff: {
-        initial: 60 * 1000, // ms
-        exponential: 1.5, // multiple backoff by N each try
-      },
-    });
-
-    logger.info('starting worker', QUEUES.DEFAULT);
-    beanstalkd.start();
-  } catch (e) {
-    logger.error(e);
-  }
 }
+
+class Worker {
+  beanstalkd;
+
+  taskMap = [];
+
+  constructor({ beanstalkd, tasks }) {
+    const { host, port } = beanstalkd;
+    this.taskMap = tasks;
+    this.beanstalkd = new BeanstalkdWorker(host, port);
+  }
+
+  getTask = task => {
+    // The Task Map should be an associative array of TASK_NAME: TaskClass pairs.
+    return this.taskMap[task];
+  };
+
+  consumeQueue = async () => {
+    try {
+      const self = this;
+      this.beanstalkd.handle(
+        QUEUES.DEFAULT,
+        function(payload) {
+          const Task = self.getTask(payload.taskName); // This should return the uninstantiated class;
+          // The beanstalkd library binds some additional functions to the function that is passed in as the handle callback.
+          // We bind our jobHandler function to the same context so that we can use this.delay();
+          jobHandler.bind(this);
+          jobHandler(payload, Task);
+        },
+        {
+          tries: 3,
+          backoff: {
+            initial: 60 * 1000, // ms
+            exponential: 1.5, // multiple backoff by N each try
+          },
+        }
+      );
+
+      logger.info('starting worker', QUEUES.DEFAULT);
+      this.beanstalkd.start();
+    } catch (e) {
+      logger.error(e);
+    }
+  };
+}
+export default Worker;
