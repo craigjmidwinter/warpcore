@@ -57,6 +57,7 @@ class Worker {
       const self = this;
       this.beanstalkd.handle(
         QUEUES.DEFAULT,
+        // eslint-disable-next-line func-names
         function(payload) {
           const Task = self.getTask(payload.taskName); // This should return the uninstantiated class;
           // The beanstalkd library binds some additional functions to the function that is passed in as the handle callback.

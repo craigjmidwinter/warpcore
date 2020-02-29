@@ -1,8 +1,0 @@
-{
-  "services": {
-    "home_assistant": {
-      "hass_url": "HASS_URL",
-      "hass_access_token": "HASS_ACCESS_TOKEN"
-    }
-  }
-}
