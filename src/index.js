@@ -23,17 +23,32 @@ class Warpcore {
     }
   ) {
     const { queue, tasks, services } = opts;
-    this.worker = new Worker({ beanstalkd: queue.beanstalkd, tasks });
     const dispatcher = new Dispatcher({ beanstalkd: queue.beanstalkd });
 
-    for (const service of services) {
-      const handler = new EventHandler(service.Events, dispatcher);
-      this.services = [
-        ...this.services,
-        new service.Service(handler.handle, logger, service.ServiceOptions),
-      ];
+    for (const svcCfgEntry of services) {
+      const handler = new EventHandler({
+        events: svcCfgEntry.Events,
+        dispatcher,
+        warpcore: this,
+      });
+      this.services[svcCfgEntry.Service.constructor] = new svcCfgEntry.Service(
+        handler.handle,
+        logger,
+        svcCfgEntry.ServiceOptions
+      );
     }
+
+    this.worker = new Worker({
+      beanstalkd: queue.beanstalkd,
+      tasks,
+      warpcore: this,
+    });
   }
+
+  getService = Service => {
+    const svcKey = Service.constructor;
+    return this.services[svcKey];
+  };
 
   start = () => {
     this.worker.consumeQueue();

@@ -5,11 +5,11 @@ import getLogger from '#services/LoggingService';
 
 const logger = getLogger();
 
-async function jobHandler(payload, Task) {
+async function jobHandler(payload, Task, warpcore) {
   const { taskData } = payload;
   logger.debug(this);
   try {
-    const task = new Task({ data: taskData });
+    const task = new Task({ data: taskData, warpcore });
     const preExecResult = await task.preExecution();
     logger.debug('processing task');
     logger.debug(payload);
@@ -41,9 +41,10 @@ class Worker {
 
   taskMap = [];
 
-  constructor({ beanstalkd, tasks }) {
+  constructor({ beanstalkd, tasks, warpcore }) {
     const { host, port } = beanstalkd;
     this.taskMap = tasks;
+    this.warpcore = warpcore;
     this.beanstalkd = new BeanstalkdWorker(host, port);
   }
 
@@ -63,7 +64,7 @@ class Worker {
           // The beanstalkd library binds some additional functions to the function that is passed in as the handle callback.
           // We bind our jobHandler function to the same context so that we can use this.delay();
           jobHandler.bind(this);
-          jobHandler(payload, Task);
+          jobHandler(payload, Task, self.warpcore);
         },
         {
           tries: 3,

@@ -3,8 +3,9 @@ import getLogger from '#services/LoggingService';
 const logger = getLogger();
 
 export default class BaseEvent {
-  constructor(dispatcher) {
+  constructor(dispatcher, warpcore) {
     this.dispatchTask = dispatcher.dispatchTask;
+    this.warpcore = warpcore;
   }
 
   dispatchTask = opt => {
