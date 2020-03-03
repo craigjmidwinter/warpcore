@@ -13,18 +13,18 @@ I began writing this as an alternative to existing solutions for Home Assistant 
 My primary goal was to build a pure automation engine and leave the responsibility of maintaining state (outside of within an automation or task), to Home Assistant. I also wanted to be able to leverage all of the integrations that Home Assistant provides, but also have the ability to integrate directly with devices if I felt the need (I have found trying to get a well timed a light sequence through Home Assistant is difficult, for example).
 
 Additionally, I had a requirement that couldn't be met by any of the above solutions out-of-the-box-- I wanted a queue system for job execution so that I could:
-- Make task diferral easier.
+- Make task deferral easier.
 - Have distributed worker nodes.
 
-### Task diferral
+### Task deferral
 
-Task diferral? What do you mean, what's the use-case?
+Task deferral? What do you mean, what's the use-case?
 
 Lets think about this in terms of an automation:
 
 You have a plant sensor that reports moisture level, and you want to be alerted when it goes below a certain level.
 
-Ok, so in any of the existing automation solutions, it's pretty easy to accomplish a simple notification whenever the sensor drops below a threshold, but what if that happens when we are out? or what if it's the middle of the night? We probably want to difer that notification to a time when we are less likely to forget about it. With Warpcore, we can dispatch a task to a queue to be executed once a condition is met (or immediately if we wanted)
+Ok, so in any of the existing automation solutions, it's pretty easy to accomplish a simple notification whenever the sensor drops below a threshold, but what if that happens when we are out? or what if it's the middle of the night? We probably want to defer that notification to a time when we are less likely to forget about it. With Warpcore, we can dispatch a task to a queue to be executed once a condition is met (or immediately if we wanted)
 
 ### Distributed Worker Nodes
 
@@ -42,7 +42,7 @@ There are two main components to Warpcore that you'll regularly use: Events and 
 
 In it's most basic form, an Event is a class with two functions, `meetsCondition()` and `action()`.  If `meetsCondition()` returns true, then `action()` will execute. Right now there are two different event providers, Home Assistant and Time-- All Home Assistant events get evaluated every time an event happens in Home Assistant, and Time events get evaluated once per minute. I'd love to add more providers so feel free to submit a pull request. 
 
-Home Assistant events get the event data passed in to each function. If you want, you can execute whatever you wan directly in the action, but I would suggest dispatching a task so that you can re-use tasks as well as have the benefit of easy task diferral. 
+Home Assistant events get the event data passed in to each function. If you want, you can execute whatever you wan directly in the action, but I would suggest dispatching a task so that you can re-use tasks as well as have the benefit of easy task deferral. 
 
 Here's an example event:
 

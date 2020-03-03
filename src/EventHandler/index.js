@@ -3,15 +3,13 @@ import getLogger from '#services/LoggingService';
 const logger = getLogger();
 
 class EventHandler {
-  constructor({events = [], dispatcher, warpcore}) {
+  constructor({ events = [], dispatcher, warpcore }) {
     this.events = events;
     this.dispatcher = dispatcher;
     this.warpcore = warpcore;
   }
 
   handle = data => {
-    logger.info('event has fired');
-
     // We rip through all the events in the directory.
     // This used to be a for...of loop, but AirBnb's eslint rules say not to use that
     // ¯\_(ツ)_/¯

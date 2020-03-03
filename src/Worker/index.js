@@ -5,11 +5,11 @@ import getLogger from '#services/LoggingService';
 
 const logger = getLogger();
 
-async function jobHandler(payload, Task, warpcore) {
+async function jobHandler(payload, Task) {
   const { taskData } = payload;
   logger.debug(this);
   try {
-    const task = new Task({ data: taskData, warpcore });
+    const task = new Task({ data: taskData });
     const preExecResult = await task.preExecution();
     logger.debug('processing task');
     logger.debug(payload);
@@ -17,7 +17,7 @@ async function jobHandler(payload, Task, warpcore) {
     switch (preExecResult) {
       case PRE_EXECUTION_RESULTS.EXECUTE:
         try {
-          task.execute();
+          await task.execute();
           return Promise.resolve();
         } catch (e) {
           logger.info(e);
@@ -63,8 +63,8 @@ class Worker {
           const Task = self.getTask(payload.taskName); // This should return the uninstantiated class;
           // The beanstalkd library binds some additional functions to the function that is passed in as the handle callback.
           // We bind our jobHandler function to the same context so that we can use this.delay();
-          jobHandler.bind(this);
-          jobHandler(payload, Task, self.warpcore);
+          jobHandler.bind(this.delay);
+          jobHandler(payload, Task);
         },
         {
           tries: 3,
