@@ -25,7 +25,7 @@ class Warpcore {
     }
   ) {
     const { queue, tasks, services } = opts;
-    const dispatcher = new Dispatcher({ beanstalkd: queue.beanstalkd });
+    const dispatcher = new Dispatcher(queue.beanstalkd);
 
     for (const svcCfgEntry of services) {
       serviceContainer.addService(svcCfgEntry, dispatcher);
